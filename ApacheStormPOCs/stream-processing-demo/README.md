@@ -1,0 +1,1 @@
+This java project demonstrates the basic stream processing using storm.
