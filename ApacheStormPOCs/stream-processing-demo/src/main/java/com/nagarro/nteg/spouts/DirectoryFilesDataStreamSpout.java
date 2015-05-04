@@ -46,7 +46,7 @@ public class DirectoryFilesDataStreamSpout extends BaseRichSpout{
 	private DirectoryFilesDataReader directoryFilesDataReader = null;
 	
 	
-	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+	public void open(@SuppressWarnings("rawtypes") Map conf, TopologyContext context, SpoutOutputCollector collector) {
 		this.collector = collector;
 		final String directoryPath = (String) conf.get(StreamProcessingTopology.DIRECTORY_PATH);
 		
@@ -60,7 +60,6 @@ public class DirectoryFilesDataStreamSpout extends BaseRichSpout{
 	public void nextTuple() {
 		String line = directoryFilesDataReader.nextLine();
 		
-		System.out.println("Emitting tuple: " + line);
 		LOG.info("Emitting tuple[LOGGER]: " + line);
 		collector.emit(Collections.singletonList((Object)line), UUID.randomUUID());
 	}

@@ -18,15 +18,11 @@ package com.nagarro.nteg.utils;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.apache.log4j.Logger;
-
 /**
  * @author Nagarro Softwares Pvt. Ltd.
  *
  */
 public class DirectoryFilesDataReaderFactory {
-	
-	private static final Logger LOG = Logger.getLogger(LocalDirectoryFilesDataReader.class);
 	
 	public static DirectoryFilesDataReader getDirectoryFilesDataReader(final String dirPath, final int batchSize) throws IOException {
 		DirectoryFilesDataReader directoryFilesDataReader = null;

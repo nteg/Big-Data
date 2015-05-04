@@ -18,6 +18,8 @@ package com.nagarro.nteg.topologies;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
@@ -36,9 +38,32 @@ import com.nagarro.nteg.spouts.DirectoryFilesDataStreamSpout;
  */
 public class StreamProcessingTopology {
 	
+	private static final Logger LOG = Logger.getLogger(StreamProcessingTopology.class);
+	
+	private static final int NUM_WORKERS = 5;
+	private static final String TOPOLOGY_NAME = "file_data_stream_processing";
+	
 	public static final String DIRECTORY_PATH = "dirPath";
 	
+	
 	public static void main(String[] args) {
+		
+		if(args.length == 0) {
+			throw new IllegalArgumentException("Please specify the directory path containing the files to process");
+		} 
+		
+		final String dirPath = args[0];
+		
+		int numOfWorkers = NUM_WORKERS;
+		if(args.length > 1) {
+			try {
+				numOfWorkers = Integer.parseInt(args[1]);
+			} catch (NumberFormatException numberFormatException) {
+				LOG.warn("Invalid value for number of workers: "  + args[1] + ", going with default: " + NUM_WORKERS);
+			}
+		} 
+		
+		
 		final TopologyBuilder topologyBuilder = new TopologyBuilder();
 		
 		topologyBuilder.setSpout("file_lines_stream", new DirectoryFilesDataStreamSpout());
@@ -56,15 +81,15 @@ public class StreamProcessingTopology {
 		}).shuffleGrouping("file_lines_stream");
 		
 		final Map<String, Object> stormConf = new HashMap<String, Object>();
-		stormConf.put(DIRECTORY_PATH, "/opt/app/data/storm/testdata/files");
-		stormConf.put(TopologySummary._Fields.NUM_WORKERS.name(), 5);
+		stormConf.put(DIRECTORY_PATH, dirPath);
+		stormConf.put(TopologySummary._Fields.NUM_WORKERS.name(), numOfWorkers);
 		
 		try {
-			StormSubmitter.submitTopology("file_data_stream_processing", stormConf, topologyBuilder.createTopology());
+			StormSubmitter.submitTopology(TOPOLOGY_NAME, stormConf, topologyBuilder.createTopology());
 		} catch (AlreadyAliveException e) {
-			e.printStackTrace();
+			LOG.fatal(e.getMessage(), e);
 		} catch (InvalidTopologyException e) {
-			e.printStackTrace();
+			LOG.fatal(e.getMessage(), e);
 		}
 	}
 }
