@@ -15,12 +15,21 @@
  */
 package com.nagarro.nteg.utils;
 
+import java.io.IOException;
+
 /**
  * @author Nagarro Softwares Pvt. Ltd.
  *
  */
-public interface DirectoryFilesDataReader {
+public interface FileDataBufferedReader {
+	String IN_PROGRESS_FILE_SUFFIX = ".in-progress";
+	String PROCESSED_FILE_SUFFIX = ".processed";
+	
+	boolean isEndOfFile();
+	
 	String nextLine();
 	
-	String getCurrentDataFileName();
+	void close() throws IOException;
+	
+	String getFileName();
 }

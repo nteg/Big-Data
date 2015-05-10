@@ -40,7 +40,7 @@ public class StreamProcessingTopology {
 	
 	private static final Logger LOG = Logger.getLogger(StreamProcessingTopology.class);
 	
-	private static final int NUM_WORKERS = 5;
+	private static final int NUM_WORKERS = 2;
 	private static final String TOPOLOGY_NAME = "file_data_stream_processing";
 	
 	public static final String DIRECTORY_PATH = "dirPath";

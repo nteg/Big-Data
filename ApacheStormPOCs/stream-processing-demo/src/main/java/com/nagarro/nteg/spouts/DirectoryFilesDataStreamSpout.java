@@ -61,7 +61,7 @@ public class DirectoryFilesDataStreamSpout extends BaseRichSpout{
 		String line = directoryFilesDataReader.nextLine();
 		
 		LOG.info("Emitting tuple[LOGGER]: " + line);
-		collector.emit(Collections.singletonList((Object)line), UUID.randomUUID());
+//		collector.emit(Collections.singletonList((Object)line), UUID.randomUUID());
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
