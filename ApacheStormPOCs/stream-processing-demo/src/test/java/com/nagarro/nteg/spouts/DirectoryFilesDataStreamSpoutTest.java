@@ -16,6 +16,7 @@
 package com.nagarro.nteg.spouts;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 
@@ -28,11 +29,13 @@ import com.nagarro.nteg.utils.DirectoryFilesDataReaderFactory;
 public class DirectoryFilesDataStreamSpoutTest {
 
 	@Test
-	public void testNextTuple() throws IOException {
+	public void testNextTuple() throws IOException, URISyntaxException {
 		DirectoryFilesDataStreamSpout dataStreamSpout = new DirectoryFilesDataStreamSpout();
-		dataStreamSpout.setDirectoryFilesDataReader(DirectoryFilesDataReaderFactory.getDirectoryFilesDataReader("E:\\sumit\\data files", 10));
+//		dataStreamSpout.setDirectoryFilesDataReader(DirectoryFilesDataReaderFactory.getDirectoryFilesDataReader("E:/sumit/datafiles", 10));
 		
-		for(int i=0; i < 10000; i++) {
+		dataStreamSpout.setDirectoryFilesDataReader(DirectoryFilesDataReaderFactory.getDirectoryFilesDataReader("hdfs://10.127.128.56:50070/sumit/datafiles", 10));
+		
+		for(int i=0; i < 30; i++) {
 			dataStreamSpout.nextTuple();
 		}
 		

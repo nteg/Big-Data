@@ -20,10 +20,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
-import backtype.storm.generated.TopologySummary;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
@@ -66,7 +66,7 @@ public class StreamProcessingTopology {
 		
 		final TopologyBuilder topologyBuilder = new TopologyBuilder();
 		
-		topologyBuilder.setSpout("file_lines_stream", new DirectoryFilesDataStreamSpout());
+		topologyBuilder.setSpout("file_lines_stream", new DirectoryFilesDataStreamSpout(), 3).setNumTasks(6);
 		
 		topologyBuilder.setBolt("log", new BaseBasicBolt() {
 			
@@ -77,12 +77,14 @@ public class StreamProcessingTopology {
 			
 			public void execute(Tuple input, BasicOutputCollector collector) {
 				System.out.println(input.getString(0));
+				
 			}
 		}).shuffleGrouping("file_lines_stream");
 		
 		final Map<String, Object> stormConf = new HashMap<String, Object>();
 		stormConf.put(DIRECTORY_PATH, dirPath);
-		stormConf.put(TopologySummary._Fields.NUM_WORKERS.name(), numOfWorkers);
+		stormConf.put(Config.TOPOLOGY_WORKERS, numOfWorkers);
+		
 		
 		try {
 			StormSubmitter.submitTopology(TOPOLOGY_NAME, stormConf, topologyBuilder.createTopology());
@@ -91,5 +93,6 @@ public class StreamProcessingTopology {
 		} catch (InvalidTopologyException e) {
 			LOG.fatal(e.getMessage(), e);
 		}
+		
 	}
 }

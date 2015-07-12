@@ -16,7 +16,8 @@
 package com.nagarro.nteg.utils;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author Nagarro Softwares Pvt. Ltd.
@@ -24,14 +25,16 @@ import java.nio.file.Paths;
  */
 public class DirectoryFilesDataReaderFactory {
 	
-	public static DirectoryFilesDataReader getDirectoryFilesDataReader(final String dirPath, final int batchSize) throws IOException {
+	public static DirectoryFilesDataReader getDirectoryFilesDataReader(final String dirPath, final int batchSize) throws IOException, URISyntaxException {
 		DirectoryFilesDataReader directoryFilesDataReader = null;
 		
-		final String scheme = Paths.get(dirPath).toUri().getScheme();
-		if("file".equalsIgnoreCase(scheme)) {
-			directoryFilesDataReader = new LocalDirectoryFilesDataReader(dirPath, batchSize);
+		final URI uri = new URI(dirPath);
+		final String scheme = uri.getScheme();
+		
+		if("hdfs".equalsIgnoreCase(scheme)){
+			directoryFilesDataReader = new HDFSDirectoryFilesDataReader(dirPath, batchSize);
 		} else {
-			throw new UnsupportedOperationException("URI scheme: " + scheme + " not supported.");
+			directoryFilesDataReader = new LocalDirectoryFilesDataReader(dirPath, batchSize);
 		}
 		
 		return directoryFilesDataReader; 

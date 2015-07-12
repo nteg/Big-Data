@@ -18,10 +18,10 @@ package com.nagarro.nteg.utils;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
+import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,22 +55,29 @@ public class HDFSDirectoryFilesDataReader extends AbstractDirectoryFilesDataRead
 		
 		final Path hdfsPath = new Path(dirPathName);
 		
-		final FileStatus[] fileStatus = hdfs.listStatus(hdfsPath, new PathFilter() {
-			
-			@Override
-			public boolean accept(Path path) {
-				final String pathName = path.getName();
-				
-				if(LOG.isInfoEnabled()) {
-					LOG.info("Checking file with name[Log]: " + pathName);
-				}
-				
-				return !(pathName.endsWith(FileDataBufferedReader.IN_PROGRESS_FILE_SUFFIX) || pathName.endsWith(FileDataBufferedReader.PROCESSED_FILE_SUFFIX));
+		Path locatedFilePath = null;
+		final RemoteIterator<LocatedFileStatus> locatedFileIterator = hdfs.listFiles(hdfsPath, true);
+		while (locatedFileIterator != null && locatedFileIterator.hasNext()) {
+			final LocatedFileStatus locatedFileStatus = locatedFileIterator.next();
+
+			final Path tmpPath = locatedFileStatus.getPath();
+
+			final String pathName = tmpPath.getName();
+
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Checking file with name[Log]: " + pathName);
 			}
-		});
+
+			 if(!(pathName.endsWith(FileDataBufferedReader.IN_PROGRESS_FILE_SUFFIX) 
+					 					|| pathName.endsWith(FileDataBufferedReader.PROCESSED_FILE_SUFFIX))) {
+				 locatedFilePath = tmpPath;
+				 break;
+			 }
+		}
 		
-		if(fileStatus.length > 0) {
-			fileDataBufferedReader =  new HDFSFileDataBufferedReader(fileStatus[0].getPath(), batchSize);
+		FileDataBufferedReader fileDataBufferedReader = null;
+		if(locatedFilePath != null) {
+			fileDataBufferedReader =  new HDFSFileDataBufferedReader(locatedFilePath, batchSize);
 		}
 		
 		return fileDataBufferedReader;

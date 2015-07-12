@@ -16,8 +16,9 @@
 package com.nagarro.nteg.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author Nagarro Softwares Pvt. Ltd.
@@ -25,6 +26,8 @@ import java.io.IOException;
  */
 public abstract class AbstractDirectoryFilesDataReader implements DirectoryFilesDataReader {
 
+	private static final Logger LOG = Logger.getLogger(AbstractDirectoryFilesDataReader.class);
+	
 	protected final String dirPathName;
 	protected final int batchSize;
 	protected FileDataBufferedReader fileDataBufferedReader;
@@ -36,8 +39,6 @@ public abstract class AbstractDirectoryFilesDataReader implements DirectoryFiles
 	protected AbstractDirectoryFilesDataReader(final String dirPathName, final int batchSize) throws IOException {
 		this.batchSize = batchSize;
 		this.dirPathName = dirPathName;
-		
-		findFileToProcess();
 	}
 	
 	private boolean findFileToProcess() throws IOException {
@@ -55,26 +56,24 @@ public abstract class AbstractDirectoryFilesDataReader implements DirectoryFiles
 	
 	@Override
 	public String nextLine() {
-		while(fileDataBufferedReader == null || fileDataBufferedReader.isEndOfFile()) {
-			
+		
+		String nextLine = null;
+		boolean fileFound = true;
+		
+		if(fileDataBufferedReader == null || fileDataBufferedReader.isEndOfFile()) {
 			try {
-				boolean fileFound = findFileToProcess();
-				
-				if(!fileFound) {
-					Thread.sleep(10000);
-				}
-				
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				fileFound = findFileToProcess();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				fileFound = false;
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		
-		return fileDataBufferedReader.nextLine();
+		if(fileFound) {
+			nextLine = fileDataBufferedReader.nextLine();
+		}
+		
+		return nextLine;
 	}
 
 	@Override

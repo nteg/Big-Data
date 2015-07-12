@@ -60,11 +60,17 @@ public class LocalDirectoryFilesDataReader extends AbstractDirectoryFilesDataRea
 					LOG.info("Checking file with name[Log]: " + name);
 				}
 				
+				final File fileToTest = dir.toPath().resolve(name).toFile();
+				
+				if(!fileToTest.isFile()) {
+					return false;
+				}
+				
 				return !(name.endsWith(FileDataBufferedReader.IN_PROGRESS_FILE_SUFFIX) || name.endsWith(FileDataBufferedReader.PROCESSED_FILE_SUFFIX));
 			}
 		});
 		
-		if(filePaths.length > 0) {
+		if(filePaths != null && filePaths.length > 0) {
 			fileDataBufferedReader =  new LocalFileDataBufferedReader(filePaths[0].toPath(), batchSize);
 		}
 		

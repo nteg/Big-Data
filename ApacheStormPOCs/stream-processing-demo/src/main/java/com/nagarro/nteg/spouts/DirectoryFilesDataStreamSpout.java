@@ -16,6 +16,7 @@
 package com.nagarro.nteg.spouts;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -52,16 +53,21 @@ public class DirectoryFilesDataStreamSpout extends BaseRichSpout{
 		
 		try {
 			directoryFilesDataReader = DirectoryFilesDataReaderFactory.getDirectoryFilesDataReader(directoryPath, 10);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Unable to read files from directory: " + directoryPath);
+		} catch (IOException | URISyntaxException e) {
+			throw new IllegalArgumentException("Unable to read files from directory: " + directoryPath, e);
 		}
 	}
 
 	public void nextTuple() {
 		String line = directoryFilesDataReader.nextLine();
 		
-		LOG.info("Emitting tuple[LOGGER]: " + line);
-//		collector.emit(Collections.singletonList((Object)line), UUID.randomUUID());
+		if(line != null) {
+			if(LOG.isInfoEnabled()) {
+				LOG.info("Emitting tuple[LOGGER]: " + line);
+			}
+			collector.emit(Collections.singletonList((Object)line), UUID.randomUUID());
+		}
+		
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
