@@ -2,7 +2,7 @@
 This directory will contain the Apache Hadoop POC projects.
 
 
-Commands to make jar: (jar is also checked-in 'otherFiles' folder)
+Commands to make jar: (jar is also checked-in 'dist' folder)
 
 	// For setting HADOOP_CLASSPATH
 	export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
